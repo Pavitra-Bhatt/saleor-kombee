@@ -12,7 +12,12 @@ WORKDIR /app
 RUN --mount=type=cache,mode=0755,target=/root/.cache/pip pip install poetry==2.1.1
 RUN poetry config virtualenvs.create false
 COPY poetry.lock pyproject.toml /app/
-RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry install
+
+# Install all dependencies with --all-fetch
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry add --all-fetch
+
+# Add graphene-django with specific version
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry add "graphene-django<3.0"
 
 ### Final image
 FROM python:3.12-slim
@@ -59,4 +64,5 @@ LABEL org.opencontainers.image.title="saleor/saleor" \
   org.opencontainers.image.authors="Saleor Commerce (https://saleor.io)" \
   org.opencontainers.image.licenses="BSD-3-Clause"
 
+# Use uvicorn as specified in the user's requirements
 CMD ["uvicorn", "saleor.asgi:application", "--host=0.0.0.0", "--port=8000", "--workers=2", "--lifespan=off", "--ws=none", "--no-server-header", "--no-access-log", "--timeout-keep-alive=35", "--timeout-graceful-shutdown=30", "--limit-max-requests=10000"]
