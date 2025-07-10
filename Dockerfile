@@ -13,11 +13,11 @@ RUN --mount=type=cache,mode=0755,target=/root/.cache/pip pip install poetry==2.1
 RUN poetry config virtualenvs.create false
 COPY poetry.lock pyproject.toml /app/
 
-# Install all dependencies with --all-fetch
-RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry add --all-fetch
+# Install all dependencies
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry install
 
-# Add graphene-django with specific version
-RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry add "graphene-django<3.0"
+# Add graphene-django with specific version if not already in pyproject.toml
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pypoetry poetry add "graphene-django<3.0" --no-interaction
 
 ### Final image
 FROM python:3.12-slim
